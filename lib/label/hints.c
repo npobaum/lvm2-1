@@ -471,7 +471,8 @@ int validate_hints(struct cmd_context *cmd, struct dm_list *hints)
 	if (!(iter = dev_iter_create(NULL, 0)))
 		return 0;
 	while ((dev = dev_iter_get(cmd, iter))) {
-		if (!(hint = _find_hint_name(hints, dev_name(dev))))
+		if (dm_list_empty(dev->aliases) ||
+                    !(hint = _find_hint_name(hints, dev_name(dev))))
 			continue;
 
 		/* The cmd hasn't needed this hint's dev so it's not been scanned. */
@@ -924,7 +925,7 @@ int write_hint_file(struct cmd_context *cmd, int newhints)
 
 	fprintf(fp, "scan_lvs:%d\n", cmd->scan_lvs);
 
-	/* 
+	/*
 	 * iterate through all devs and write a line for each
 	 * dev flagged DEV_SCAN_FOUND_LABEL
 	 */
@@ -1152,7 +1153,7 @@ static void _get_single_vgname_cmd_arg(struct cmd_context *cmd,
 	char *name = NULL;
 	char *arg, *st, *p;
 	int i = 0;
-	
+
 	memset(namebuf, 0, sizeof(namebuf));
 
 	if (cmd->position_argc != 1)
@@ -1328,7 +1329,7 @@ int get_hints(struct cmd_context *cmd, struct dm_list *hints_out, int *newhints,
 		return 0;
 
 	}
-	
+
 	/*
 	 * A command that changes global state clears the content
 	 * of the hints file so it will be recreated, and we must
@@ -1367,4 +1368,3 @@ int get_hints(struct cmd_context *cmd, struct dm_list *hints_out, int *newhints,
 
 	return 1;
 }
-
